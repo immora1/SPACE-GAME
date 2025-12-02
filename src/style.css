@@ -1,96 +1,57 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+/* 全局：纯黑世界 */
+body { margin: 0; overflow: hidden; background-color: #000000; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+#ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+/* 仪表盘：去掉了磨砂和边框，只保留纯净的文字块 */
+#dashboard {
+    position: absolute; top: 30px; left: 30px;
+    color: #fff; 
+    /* 只要一个极简的左边框定位 */
+    border-left: 2px solid #fff; 
+    padding-left: 20px;
+    min-width: 180px;
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+/* 字体排版：更加冷静、客观 */
+.stat-item { font-size: 9px; color: #666; letter-spacing: 2px; text-transform: uppercase; margin-top: 15px; font-weight: 600; }
+.big-num { font-size: 24px; font-weight: 300; color: #fff; margin-bottom: 5px; letter-spacing: 1px; }
+.zone-indicator { font-size: 14px; font-weight: bold; color: #fff; letter-spacing: 1px; }
+
+/* 燃料条：改为极细的白线 */
+.fuel-bar-container { width: 100%; height: 1px; background: #333; margin-top: 8px; }
+.fuel-bar-fill { height: 100%; background: #fff; width: 100%; transition: width 0.2s; box-shadow: none; }
+
+/* 底部控制栏：悬浮的纯粹黑块 */
+#controls-wrapper { position: absolute; bottom: 50px; width: 100%; display: flex; justify-content: center; pointer-events: auto; }
+#controls {
+    /* 纯黑背景，不透明，遮挡轨道 */
+    background: #000; 
+    border: 1px solid #222; 
+    padding: 20px 50px;
+    display: flex; gap: 60px; 
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+/* 按钮：平时是灰色字，激活是白底黑字（经典现代主义） */
+.orbit-btn {
+    background: transparent; border: none; color: #444;
+    padding: 5px 0; font-size: 10px; cursor: pointer; transition: all 0.2s;
+    letter-spacing: 1px;
+    border-bottom: 1px solid transparent; /* 预留边框位置 */
 }
+.orbit-btn:hover { color: #fff; }
+.orbit-btn.active { color: #fff; border-bottom: 1px solid #fff; } /* 激活只加下划线，保持极简 */
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
+/* 滑块：改为白色 */
+input[type=range] { accent-color: #fff; cursor: pointer; }
+.val-display { color: #fff; font-size: 10px; font-family: monospace; margin-top: 8px; display: block; text-align: center;}
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+/* 警告与结束：只有黑白 */
+#alert {
+    position: absolute; top: 15%; left: 50%; transform: translateX(-50%);
+    color: #fff; background: #000; border: 1px solid #fff;
+    padding: 15px 40px; font-size: 12px; letter-spacing: 5px;
+    opacity: 0; transition: opacity 0.2s;
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vanilla:hover {
-  filter: drop-shadow(0 0 2em #f7df1eaa);
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-}
+#game-over { display: none; position: absolute; inset: 0; background: #000; z-index: 99; flex-direction: column; justify-content: center; align-items: center; pointer-events: auto; }
+.retry-btn { border: 1px solid #fff; background: #000; color: #fff; padding: 15px 50px; cursor: pointer; font-size: 12px; letter-spacing: 3px; transition: 0.3s; text-transform: uppercase;}
+.retry-btn:hover { background: #fff; color: #000; }
