@@ -3,10 +3,10 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 export function initScene() {
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000); // 纯黑背景
+    scene.background = new THREE.Color(0x000000); // 纯黑深空
 
     const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
-    camera.position.set(20, 10, 20);
+    camera.position.set(0, 20, 40);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -15,8 +15,10 @@ export function initScene() {
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
-    controls.minDistance = 10;
-    controls.maxDistance = 100;
+
+    // 手绘风格不需要复杂光照，但为了材质可见，加上基础环境光
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
+    scene.add(ambientLight);
 
     window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;

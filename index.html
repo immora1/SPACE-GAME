@@ -3,60 +3,128 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kessler: Minimal</title>
+    <title>Kessler Syndrome</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   </head>
   <body>
     <div id="ui-layer">
+      
       <div id="dashboard">
-        <div class="stat-item">Mission Status</div>
-        <div class="zone-indicator" id="zone-display">LEO / 550KM</div>
-        
-        <div class="stat-item">Integrity</div>
-        <div class="big-num" id="integrity">100%</div>
-
-        <div class="stat-item">Fuel Reserves</div>
-        <div class="fuel-bar-container"><div id="fuel-bar" class="fuel-bar-fill"></div></div>
-        
-        <div class="stat-item">Timeline</div>
-        <div style="color:#666; font-size:12px; margin-top:5px;">
-           <span id="month-display" style="color:#fff">0</span> / 36 MONTHS
+        <div class="panel-header">
+            <div class="status-dot"></div>
+            <div class="panel-title">SYSTEM STATUS</div>
+        </div>
+        <div class="monitor-grid">
+            <div class="monitor-item">
+                <div class="label">ALTITUDE ZONE</div>
+                <div class="value-mono" id="zone-display">LEO-550</div>
+            </div>
+            <div class="monitor-item">
+                <div class="label">HULL INTEGRITY</div>
+                <div class="value-mono" id="integrity">100%</div>
+            </div>
+            <div class="monitor-item full-width">
+                <div class="label">PROPELLANT</div>
+                <div class="fuel-track"><div id="fuel-bar"></div></div>
+            </div>
+            <div class="monitor-item full-width">
+                <div class="label">MISSION CLOCK</div>
+                <div class="value-mono small"><span id="month-display">0.0</span> / 36 MO</div>
+            </div>
         </div>
       </div>
 
-      <div id="alert">COLLISION IMMINENT</div>
+      <div id="alert">⚠ PROXIMITY ALERT</div>
 
       <div id="controls-wrapper">
-        <div id="controls">
-            <div>
-                <div class="stat-item" style="text-align:center; margin-bottom:15px; margin-top:0;">ORBIT</div>
-                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:15px;">
-                    <button class="orbit-btn active" data-alt="550">550 KM</button>
-                    <button class="orbit-btn" data-alt="1200">1200 KM</button>
-                    <button class="orbit-btn" data-alt="20200">GPS</button>
-                    <button class="orbit-btn" data-alt="35786">GEO</button>
+        <div id="bottom-console">
+            
+            <div class="console-section section-orbit">
+                <div class="section-label">轨道 ORBIT SELECTION</div>
+                <div class="orbit-grid">
+                    <button class="orbit-btn active" data-alt="550">
+                        <span class="btn-code">A1</span>
+                        <span class="btn-name">LEO</span>
+                    </button>
+                    <button class="orbit-btn" data-alt="800">
+                        <span class="btn-code">A2</span>
+                        <span class="btn-name">SSO</span>
+                    </button>
+                    <button class="orbit-btn" data-alt="1200">
+                        <span class="btn-code">A3</span>
+                        <span class="btn-name">MEO</span>
+                    </button>
+                    <button class="orbit-btn" data-alt="2000">
+                        <span class="btn-code">A4</span>
+                        <span class="btn-name">HEO</span>
+                    </button>
+
+                    <button class="orbit-btn" data-alt="10000">
+                        <span class="btn-code">B1</span>
+                        <span class="btn-name">MEO+</span>
+                    </button>
+                    <button class="orbit-btn" data-alt="20200">
+                        <span class="btn-code">B2</span>
+                        <span class="btn-name">GPS</span>
+                    </button>
+                    <button class="orbit-btn" data-alt="30000">
+                        <span class="btn-code">B3</span>
+                        <span class="btn-name">GTO</span>
+                    </button>
+                    <button class="orbit-btn" data-alt="35786">
+                        <span class="btn-code">B4</span>
+                        <span class="btn-name">GEO</span>
+                    </button>
                 </div>
             </div>
-            <div style="text-align:center;">
-                <div class="stat-item" style="margin-bottom:15px; margin-top:0;">INCLINATION</div>
-                <button class="orbit-btn" id="inc-minus">-</button>
-                <span id="incVal" style="color:#fff; margin:0 15px; font-family:monospace; font-size:12px;">20°</span>
-                <button class="orbit-btn" id="inc-plus">+</button>
+
+            <div class="console-divider"></div>
+
+            <div class="console-section section-inc">
+                <div class="section-label">倾角 INCLINATION</div>
+                <div class="inc-wrapper">
+                    <button class="action-btn" id="inc-minus">-</button>
+                    <div class="inc-display">
+                        <span id="incVal">20°</span>
+                        <div class="inc-lines"></div>
+                    </div>
+                    <button class="action-btn" id="inc-plus">+</button>
+                </div>
             </div>
-            <div style="text-align:center;">
-                <div class="stat-item" style="margin-bottom:15px; margin-top:0;">SPEED</div>
-                <input type="range" id="speedRange" min="1" max="10" step="1" value="1">
-                <span class="val-display" id="speedVal">x1</span>
+
+            <div class="console-divider"></div>
+
+            <div class="console-section section-sys">
+                <div class="sys-row">
+                    <div class="section-label">速度 SPEED</div>
+                    <div class="slider-box">
+                        <input type="range" id="speedRange" min="1" max="10" step="1" value="1">
+                        <span id="speedVal">x1</span>
+                    </div>
+                </div>
+                <div class="sys-row" style="margin-top: auto;">
+                    <div class="section-label">系统 SYSTEM</div>
+                    <div class="status-blocks">
+                        <div class="status-blk active">RADAR</div>
+                        <div class="status-blk active">COMMS</div>
+                        <div class="status-blk active">GYRO</div>
+                    </div>
+                </div>
             </div>
+
         </div>
       </div>
 
       <div id="game-over">
-        <h1 id="end-status" style="color:#fff; font-weight:300; letter-spacing:8px; margin-bottom:20px; font-size: 24px;">FAILED</h1>
-        <p id="end-reason" style="color:#666; font-size:10px; margin-bottom:40px; letter-spacing: 2px; text-transform: uppercase;">UNKNOWN ERROR</p>
-        <button class="retry-btn" id="retry-btn">RESTART</button>
+        <h1 id="end-status">MISSION FAILED</h1>
+        <p id="end-reason">SIGNAL LOST</p>
+        <button id="retry-btn">REBOOT SYSTEM</button>
       </div>
+
     </div>
-    
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
