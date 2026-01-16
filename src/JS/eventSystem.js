@@ -4,8 +4,10 @@ import { EVENT_DATABASE } from './eventData.js';
 let nextEventTimer = null;
 let dismissTimer = null;
 let currentOrbit = null;
+// 用来暂存“当前正在进行”的事件
+let currentActiveEventData = null; 
 
-// 时间配置 (保持接力模式)
+// 时间配置
 const GAP_TIME_MIN = 5000; 
 const GAP_TIME_MAX = 8000; 
 const DISPLAY_TIME = 30000;       
@@ -31,10 +33,13 @@ function checkOrbitChange() {
         clearTimeout(nextEventTimer);
         clearTimeout(dismissTimer);
         
+        // 切换轨道时，当前正在显示的事件作废
+        currentActiveEventData = null; 
         hideEvent(false); 
         
-        // 切换轨道时，顺便清空底部的事件显示，或者保留上一个也行
-        // document.getElementById('event-log-container').innerHTML = '<div class="log-placeholder">NO DATA</div>';
+        // 切换轨道时，清空底部的历史记录显示（因为环境变了）
+        const container = document.getElementById('event-log-container');
+        if(container) container.innerHTML = '<div class="log-placeholder">NO DATA</div>';
 
         scheduleNextEvent();
     }
@@ -54,36 +59,39 @@ function triggerEvent() {
     
     const event = events[Math.floor(Math.random() * events.length)];
     
+    // === 【新增】推送到全局统计 (用于最后的结算卡片) ===
+    if (state.stats && state.stats.eventHistory) {
+        state.stats.eventHistory.push(event);
+    }
+
+    // 暂存当前事件，用于底部 UI 显示
+    currentActiveEventData = event;
+
+    // 只显示大弹窗（代表“正在发生”）
     showEvent(event);     
-    addEventToLog(event); 
 }
 
-// === 【修改】单条替换逻辑 ===
 function addEventToLog(data) {
     const container = document.getElementById('event-log-container');
     if (!container) return;
 
-    // 1. 直接清空容器（移除旧的）
-    container.innerHTML = '';
+    container.innerHTML = ''; // 清空，保持单条记录
 
-    // 2. 创建新芯片
     const chip = document.createElement('div');
     chip.className = 'event-chip';
     if (data.type === 'HISTORY') chip.classList.add('history');
     
-    // 显示英文标题 (如果没有英文标题，才截取中文)
     chip.innerText = data.enTitle || data.title.substring(0, 8);
 
-    // 绑定悬停
-    chip.addEventListener('mouseenter', (e) => showTooltip(e, data));
+    // 使用 currentTarget 确保获取的是 div 元素
+    chip.addEventListener('mouseenter', (e) => showTooltip(e.currentTarget, data));
     chip.addEventListener('mouseleave', hideTooltip);
 
-    // 3. 放入容器
     container.appendChild(chip);
 }
 
-// Tooltip 逻辑保持不变
-function showTooltip(e, data) {
+// Tooltip 逻辑
+function showTooltip(targetElement, data) {
     const tooltip = document.getElementById('history-tooltip');
     if(!tooltip) return;
 
@@ -98,12 +106,22 @@ function showTooltip(e, data) {
     if(data.type === 'HISTORY') tooltip.classList.add('history-mode');
     else tooltip.classList.remove('history-mode');
 
-    const chipRect = e.target.getBoundingClientRect();
+    // 获取位置
+    const chipRect = targetElement.getBoundingClientRect();
     const tooltipRect = tooltip.getBoundingClientRect();
 
+    // 1. 水平居中
     let left = chipRect.left + (chipRect.width / 2) - (tooltipRect.width / 2);
-    if (left < 10) left = 10;
-    let top = chipRect.top - tooltipRect.height - 10; 
+    
+    // 2. 垂直位于上方 (预留 15px 间距)
+    let top = chipRect.top - tooltipRect.height - 15;
+
+    // 3. 边界检查
+    if (left < 10) left = 10; 
+    if (left + tooltipRect.width > window.innerWidth - 10) { 
+        left = window.innerWidth - tooltipRect.width - 10;
+    }
+    if (top < 10) top = chipRect.bottom + 15; 
 
     tooltip.style.left = left + 'px';
     tooltip.style.top = top + 'px';
@@ -156,6 +174,16 @@ function showEvent(data) {
 function hideEvent(shouldScheduleNext = true) {
     const popup = document.getElementById('event-popup');
     if (popup) popup.style.display = 'none';
+    
     clearTimeout(dismissTimer);
-    if (shouldScheduleNext) scheduleNextEvent();
+
+    // 当弹窗关闭（事件结束）时，才把它写入底部历史显示
+    if (currentActiveEventData) {
+        addEventToLog(currentActiveEventData);
+        currentActiveEventData = null; 
+    }
+
+    if (shouldScheduleNext) {
+        scheduleNextEvent();
+    }
 }
