@@ -6,7 +6,7 @@
     <title>Kessler Syndrome</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;500;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   </head>
   <body>
     <div id="ui-layer">
@@ -38,83 +38,85 @@
 
       <div id="alert">⚠ PROXIMITY ALERT</div>
 
-      <div id="controls-wrapper">
-        <div id="bottom-console">
+      <div id="event-popup">
+        <div class="popup-header">
+            <div class="popup-title-box">
+                <span class="warning-icon">⚠</span>
+                <span>INCIDENT LOG</span>
+            </div>
+            <button id="popup-close">×</button>
+        </div>
+        <div class="popup-img-wrapper">
+            <img id="popup-img" src="" alt="Event Image">
+        </div>
+        <div class="popup-content">
+            <div class="popup-meta">
+                <span id="popup-date">2025.04.12</span>
+                <span class="popup-label">PRIORITY: HIGH</span>
+            </div>
+            <h2 id="popup-name">ORBITAL COLLISION</h2>
+            <p id="popup-desc">Event description goes here.</p>
+        </div>
+        <div class="popup-footer">
+            <div class="timer-bar"><div id="popup-timer-fill"></div></div>
+            <span class="timer-text">AUTO-DISMISS</span>
+        </div>
+      </div>
+
+      <div id="command-bar-container">
+        <div id="command-bar">
             
-            <div class="console-section section-orbit">
-                <div class="section-label">轨道 ORBIT SELECTION</div>
-                <div class="orbit-grid">
-                    <button class="orbit-btn active" data-alt="550">
-                        <span class="btn-code">A1</span>
-                        <span class="btn-name">LEO</span>
-                    </button>
-                    <button class="orbit-btn" data-alt="800">
-                        <span class="btn-code">A2</span>
-                        <span class="btn-name">SSO</span>
-                    </button>
-                    <button class="orbit-btn" data-alt="1200">
-                        <span class="btn-code">A3</span>
-                        <span class="btn-name">MEO</span>
-                    </button>
-                    <button class="orbit-btn" data-alt="2000">
-                        <span class="btn-code">A4</span>
-                        <span class="btn-name">HEO</span>
-                    </button>
-
-                    <button class="orbit-btn" data-alt="10000">
-                        <span class="btn-code">B1</span>
-                        <span class="btn-name">MEO+</span>
-                    </button>
-                    <button class="orbit-btn" data-alt="20200">
-                        <span class="btn-code">B2</span>
-                        <span class="btn-name">GPS</span>
-                    </button>
-                    <button class="orbit-btn" data-alt="30000">
-                        <span class="btn-code">B3</span>
-                        <span class="btn-name">GTO</span>
-                    </button>
-                    <button class="orbit-btn" data-alt="35786">
-                        <span class="btn-code">B4</span>
-                        <span class="btn-name">GEO</span>
-                    </button>
+            <div class="cmd-group group-orbit">
+                <div class="cmd-label">TARGET ORBIT</div>
+                <div class="orbit-strip">
+                    <button class="orbit-pill active" data-alt="550">LEO</button>
+                    <button class="orbit-pill" data-alt="800">SSO</button>
+                    <button class="orbit-pill" data-alt="1200">MEO</button>
+                    <button class="orbit-pill" data-alt="2000">HEO</button>
+                    <button class="orbit-pill" data-alt="10000">MEO+</button>
+                    <button class="orbit-pill" data-alt="20200">GPS</button>
+                    <button class="orbit-pill" data-alt="30000">GTO</button>
+                    <button class="orbit-pill" data-alt="35786">GEO</button>
                 </div>
             </div>
 
-            <div class="console-divider"></div>
+            <div class="cmd-divider"></div>
 
-            <div class="console-section section-inc">
-                <div class="section-label">倾角 INCLINATION</div>
-                <div class="inc-wrapper">
-                    <button class="action-btn" id="inc-minus">-</button>
-                    <div class="inc-display">
-                        <span id="incVal">20°</span>
-                        <div class="inc-lines"></div>
+            <div class="cmd-group group-flight">
+                
+                <div class="flight-unit">
+                    <div class="cmd-label">INCLINATION</div>
+                    <div class="stepper-control">
+                        <button class="step-btn" id="inc-minus">-</button>
+                        <span id="incVal" class="digital-readout">20°</span>
+                        <button class="step-btn" id="inc-plus">+</button>
                     </div>
-                    <button class="action-btn" id="inc-plus">+</button>
                 </div>
-            </div>
 
-            <div class="console-divider"></div>
-
-            <div class="console-section section-sys">
-                <div class="sys-row">
-                    <div class="section-label">速度 SPEED</div>
-                    <div class="slider-box">
+                <div class="flight-unit">
+                    <div class="cmd-label">WARP SPEED <span id="speedVal">x1</span></div>
+                    <div class="slider-wrapper">
                         <input type="range" id="speedRange" min="1" max="10" step="1" value="1">
-                        <span id="speedVal">x1</span>
                     </div>
                 </div>
-                <div class="sys-row" style="margin-top: auto;">
-                    <div class="section-label">系统 SYSTEM</div>
-                    <div class="status-blocks">
-                        <div class="status-blk active">RADAR</div>
-                        <div class="status-blk active">COMMS</div>
-                        <div class="status-blk active">GYRO</div>
-                    </div>
+            </div>
+
+            <div class="cmd-divider"></div>
+
+            <div class="cmd-group group-log">
+                <div class="cmd-label">EVENT HISTORY</div>
+                <div id="event-log-container" class="log-strip">
+                    <div class="log-placeholder">NO DATA</div> 
                 </div>
             </div>
 
         </div>
+      </div>
+
+      <div id="history-tooltip">
+          <div class="tooltip-title">TITLE</div>
+          <div class="tooltip-desc">Description...</div>
+          <div class="tooltip-date">DATE</div>
       </div>
 
       <div id="game-over">

@@ -3,128 +3,258 @@
 ========================================= */
 :root {
     --bg-dark: #0f1012;
-    --panel-bg: rgba(20, 21, 24, 0.85); 
-    --panel-border: rgba(255, 255, 255, 0.1);
-    --accent: #3b82f6; 
-    --accent-glow: rgba(59, 130, 246, 0.4);
-    --text-main: #ffffff;
-    --text-sub: #6b7280;
+    --accent: #4C42D7;       /* 核心主色 */
+    --accent-glow: rgba(76, 66, 215, 0.6);
+    --text-white: #ffffff;
+    --text-dim: #888888;
     
-    --font-ui: 'Inter', sans-serif;
+    --font-ui: 'Lexend', sans-serif;
     --font-code: 'JetBrains Mono', monospace;
     
-    --radius-lg: 16px;
-    --radius-sm: 6px;
+    /* 指令条背景：深黑玻璃 */
+    --bar-bg: rgba(10, 10, 15, 0.85);
+    /* 你修改后的淡紫色边框 */
+    --bar-border: rgba(205, 203, 235, 0.5); 
 }
 
 body {
     margin: 0; overflow: hidden; background-color: var(--bg-dark);
-    font-family: var(--font-ui); color: var(--text-main);
+    font-family: var(--font-ui); color: var(--text-white);
     -webkit-font-smoothing: antialiased;
 }
-
 canvas { position: absolute; top: 0; left: 0; z-index: 0; }
-
-#ui-layer {
-    position: absolute; inset: 0; pointer-events: none; z-index: 10;
-    background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.6) 100%);
-}
-
-/* 仪表盘 (保持不变) */
-#dashboard {
-    position: absolute; top: 30px; left: 30px;
-    width: 240px;
-    background: var(--panel-bg);
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--panel-border);
-    border-radius: var(--radius-lg);
-    padding: 16px;
-    pointer-events: auto;
-}
-.panel-header { display: flex; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--panel-border); padding-bottom: 10px; }
-.status-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981; margin-right: 10px; }
-.panel-title { font-size: 0.75rem; font-weight: 800; letter-spacing: 1px; color: var(--text-sub); }
-.monitor-grid { display: flex; flex-wrap: wrap; gap: 15px; }
-.monitor-item { width: 45%; }
-.monitor-item.full-width { width: 100%; }
-.label { font-size: 0.65rem; color: var(--text-sub); font-weight: 600; margin-bottom: 4px; letter-spacing: 0.5px; }
-.value-mono { font-family: var(--font-code); font-size: 1.1rem; color: #fff; font-weight: 700; }
-.value-mono.small { font-size: 0.9rem; }
-.fuel-track { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
-#fuel-bar { width: 100%; height: 100%; background: var(--accent); transition: width 0.3s; }
+#ui-layer { position: absolute; inset: 0; pointer-events: none; z-index: 10; }
 
 /* =========================================
-   底部控制台 (更新布局)
+   Dashboard (左上角) - 保持极简深色
 ========================================= */
-#controls-wrapper {
-    position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+#dashboard {
+    position: absolute; top: 20px; left: 20px;
+    width: 220px;
+    background: rgba(0, 0, 0, 0.8);
+    border-left: 2px solid var(--accent);
+    backdrop-filter: blur(10px);
+    padding: 15px 20px;
     pointer-events: auto;
-    width: auto;
+}
+.panel-header { display: flex; align-items: center; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; }
+.status-dot { width: 6px; height: 6px; background: #0f0; border-radius: 50%; box-shadow: 0 0 5px #0f0; margin-right: 8px; }
+.panel-title { font-size: 0.7rem; font-weight: 800; letter-spacing: 1px; color: var(--text-dim); }
+
+.monitor-grid { display: flex; flex-wrap: wrap; gap: 15px; }
+.monitor-item { width: 100%; display: flex; justify-content: space-between; align-items: baseline; }
+.label { font-size: 0.6rem; color: var(--text-dim); font-weight: 500; letter-spacing: 0.5px; }
+.value-mono { font-family: var(--font-code); font-size: 0.9rem; color: #fff; font-weight: 600; }
+
+/* 燃油条与视觉反馈 */
+.fuel-track { width: 100%; height: 2px; background: rgba(255,255,255,0.1); margin-top: 5px; }
+#fuel-bar { width: 100%; height: 100%; background: var(--accent); transition: width 0.3s; box-shadow: 0 0 5px var(--accent); }
+
+/* LEO/GEO 模式的特殊颜色 */
+.fuel-mode-leo #fuel-bar { background: #10b981; box-shadow: 0 0 10px #10b981; animation: pulse-green 2s infinite; }
+.fuel-mode-geo #fuel-bar { background: #f59e0b; box-shadow: 0 0 15px #f59e0b; animation: burn-orange 0.2s infinite; }
+@keyframes pulse-green { 0% { opacity: 0.8; } 50% { opacity: 1; } 100% { opacity: 0.8; } }
+@keyframes burn-orange { 0% { opacity: 0.9; } 50% { opacity: 1; } 100% { opacity: 0.9; } }
+
+/* =========================================
+   全新悬浮指令条 (Floating Command Bar)
+========================================= */
+#command-bar-container {
+    position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+    width: auto; pointer-events: auto;
+    display: flex; justify-content: center;
 }
 
-#bottom-console {
-    display: flex;
-    height: 140px; 
-    background: #1f2024;
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 20px;
-    padding: 8px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    align-items: stretch;
+#command-bar {
+    display: flex; align-items: center;
+    height: 80px; 
+    padding: 0 30px;
+    background: var(--bar-bg);
+    backdrop-filter: blur(20px); 
+    border: 1px solid var(--bar-border);
+    border-radius: 40px; 
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    gap: 25px;
 }
 
-.console-divider { width: 1px; background: rgba(255,255,255,0.1); margin: 10px 0; }
-.console-section { padding: 15px 25px; display: flex; flex-direction: column; }
-.section-label { font-size: 0.7rem; font-weight: 900; color: var(--text-sub); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 1px; }
+.cmd-divider { width: 1px; height: 40px; background: rgba(255,255,255,0.1); }
 
-/* --- 模块 1: 轨道 (加宽，4列布局) --- */
-.section-orbit { 
-    width: 340px; /* 【修改】宽度增加，容纳4列 */ 
+.cmd-group { display: flex; flex-direction: column; justify-content: center; }
+.cmd-label {
+    font-size: 0.55rem; color: var(--text-dim); font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase;
 }
-.orbit-grid {
-    display: grid;
-    /* 【修改】从 1fr 1fr 改为 4列 */
+
+/* --- 1. 轨道胶囊条 --- */
+.orbit-strip {
+    display: grid; 
     grid-template-columns: repeat(4, 1fr); 
-    grid-template-rows: 1fr 1fr;
-    gap: 8px;
-    height: 100%;
+    gap: 4px 8px;
 }
-.orbit-btn {
-    background: rgba(255,255,255,0.05);
-    border: none; border-radius: 4px;
-    color: var(--text-sub);
+.orbit-pill {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--text-dim);
+    font-family: var(--font-ui); font-size: 0.65rem; font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 10px;
     cursor: pointer;
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
     transition: all 0.2s;
+    text-align: center; white-space: nowrap;
 }
-.orbit-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
-.orbit-btn.active { background: var(--accent); color: #fff; box-shadow: 0 0 15px var(--accent-glow); }
-.btn-code { font-size: 0.6rem; opacity: 0.6; font-family: var(--font-code); margin-bottom: 2px; }
-.btn-name { font-size: 0.75rem; font-weight: 700; white-space: nowrap; } /* 防止文字换行 */
+.orbit-pill:hover { border-color: var(--accent); color: #fff; }
+.orbit-pill.active {
+    background: var(--accent); border-color: var(--accent);
+    color: #fff; box-shadow: 0 0 10px var(--accent-glow);
+}
 
-/* --- 模块 2: 倾角 --- */
-.section-inc { width: 180px; align-items: center; }
-.inc-wrapper { display: flex; align-items: center; justify-content: space-between; width: 100%; height: 100%; }
-.inc-display { flex-grow: 1; height: 70px; background: rgba(0,0,0,0.3); border-radius: 4px; display: flex; align-items: center; justify-content: center; margin: 0 10px; position: relative; border: 1px solid rgba(255,255,255,0.1); }
-#incVal { font-family: var(--font-code); font-size: 1.4rem; font-weight: 700; z-index: 2; }
-.inc-lines { position: absolute; width: 100%; height: 100%; border-left: 1px dashed rgba(255,255,255,0.1); border-right: 1px dashed rgba(255,255,255,0.1); left: 0; top: 0; pointer-events: none; width: 60%; left: 20%; }
-.action-btn { width: 40px; height: 40px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-size: 1.2rem; cursor: pointer; border-radius: 4px; transition: 0.2s; }
-.action-btn:hover { background: var(--accent); border-color: var(--accent); }
+/* --- 2. 飞行参数 --- */
+.group-flight { flex-direction: row; gap: 30px; }
+.flight-unit { display: flex; flex-direction: column; }
 
-/* --- 模块 3: 系统 --- */
-.section-sys { width: 200px; }
-.sys-row { display: flex; flex-direction: column; }
-.slider-box { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 20px; }
-#speedRange { flex-grow: 1; -webkit-appearance: none; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; }
-#speedRange::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; background: #fff; border-radius: 50%; cursor: pointer; }
-#speedVal { font-family: var(--font-code); font-size: 0.9rem; width: 24px; text-align: right; }
-.status-blocks { display: flex; gap: 6px; margin-top: 5px; }
-.status-blk { flex: 1; height: 36px; background: rgba(255,255,255,0.05); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.55rem; font-weight: 700; color: var(--text-sub); }
-.status-blk.active { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+/* 倾角控制 */
+.stepper-control {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.05); padding: 4px; border-radius: 20px;
+}
+.step-btn {
+    width: 24px; height: 24px; border-radius: 50%; border: none;
+    background: rgba(255,255,255,0.1); color: #fff; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: bold; transition: 0.2s;
+}
+.step-btn:hover { background: var(--accent); }
+.digital-readout {
+    font-family: var(--font-code); font-size: 1rem; color: #fff; min-width: 40px; text-align: center;
+}
 
-/* 弹窗 */
-#alert { position: absolute; top: 15%; left: 50%; transform: translateX(-50%); background: rgba(220, 38, 38, 0.1); color: #ef4444; border: 1px solid #ef4444; padding: 10px 30px; font-weight: 800; letter-spacing: 2px; opacity: 0; transition: opacity 0.2s; backdrop-filter: blur(4px); }
-#game-over { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; flex-direction: column; justify-content: center; align-items: center; pointer-events: auto; }
-#end-status { font-size: 3rem; margin-bottom: 10px; letter-spacing: 4px; }
-#retry-btn { border: 2px solid var(--accent); color: var(--accent); background: transparent; padding: 15px 40px; font-weight: 800; cursor: pointer; }
-#retry-btn:hover { background: var(--accent); color: #fff; }
+/* 速度控制 */
+.slider-wrapper { display: flex; align-items: center; height: 32px; }
+#speedRange {
+    -webkit-appearance: none; width: 120px; height: 2px;
+    background: rgba(255,255,255,0.2); outline: none;
+}
+#speedRange::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 12px; height: 12px;
+    background: var(--accent); border-radius: 50%; cursor: pointer;
+    box-shadow: 0 0 10px var(--accent); border: 2px solid #fff;
+    margin-top: -5px; 
+}
+#speedVal { color: var(--accent); margin-left: 5px; font-family: var(--font-code); }
+
+/* --- 3. 事件黑匣子 (替代原系统开关) --- */
+.group-log { width: 200px; align-items: flex-start; }
+
+.log-strip {
+    display: flex; align-items: center;
+    height: 32px; width: 100%;
+    overflow: hidden; /* 防止溢出 */
+}
+
+.log-placeholder {
+    font-size: 0.6rem; color: rgba(255,255,255,0.2); 
+    font-weight: 700; letter-spacing: 1px; padding-left: 5px;
+}
+
+/* 事件芯片样式 */
+.event-chip {
+    max-width: 100%; height: 24px; padding: 0 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 4px;
+    
+    font-family: var(--font-code); color: #ccc;
+    font-size: 0.6rem; font-weight: 700;
+    line-height: 22px; white-space: nowrap;
+    
+    cursor: help; transition: all 0.2s;
+    animation: fadeIn 0.3s ease-out;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+.event-chip:hover {
+    background: var(--accent); color: #fff; border-color: #fff;
+    box-shadow: 0 0 10px var(--accent-glow);
+}
+.event-chip.history { border-color: rgba(224, 188, 0, 0.4); color: #e0bc00; }
+.event-chip.history:hover { background: #e0bc00; color: #000; }
+
+
+/* =========================================
+   悬浮提示框 (Tooltip)
+========================================= */
+#history-tooltip {
+    position: fixed; /* 使用 fixed 避免受父级 transform 影响 */
+    top: 0; left: 0; z-index: 9999;
+    width: 240px;
+    background: rgba(15, 15, 20, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    padding: 12px;
+    
+    pointer-events: none; opacity: 0; 
+    transform: translateY(10px);
+    transition: opacity 0.2s, transform 0.2s;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+}
+#history-tooltip.visible { opacity: 1; transform: translateY(0); }
+
+.tooltip-title {
+    color: #fff; font-size: 0.75rem; font-weight: 800; 
+    margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;
+    border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;
+}
+.tooltip-desc { color: #aaa; font-size: 0.65rem; line-height: 1.5; margin-bottom: 8px; }
+.tooltip-date { color: var(--accent); font-family: var(--font-code); font-size: 0.6rem; text-align: right; font-weight: 700; }
+
+#history-tooltip.history-mode .tooltip-title { color: #e0bc00; border-bottom-color: rgba(224, 188, 0, 0.2); }
+#history-tooltip.history-mode .tooltip-date { color: #e0bc00; }
+
+
+/* =========================================
+   弹窗 (Event Popup) - 适配
+========================================= */
+#event-popup {
+    position: absolute; right: 40px; top: 50%; transform: translateY(-50%);
+    width: 280px;
+    background: rgba(15, 15, 20, 0.95); 
+    border: 1px solid var(--bar-border);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+    border-radius: 12px;
+    display: none; flex-direction: column; overflow: hidden; z-index: 99;
+    pointer-events: auto; animation: slideIn 0.4s ease-out;
+}
+@keyframes slideIn { from { opacity: 0; transform: translate(20px, -50%); } to { opacity: 1; transform: translate(0, -50%); } }
+
+.popup-header { background: var(--accent); color: #fff; padding: 12px; display: flex; justify-content: space-between; align-items: center; }
+#event-popup.history .popup-header { background: #E0BC00; color: #000; }
+
+.popup-title-box { font-weight: 800; font-size: 0.7rem; letter-spacing: 1px; text-transform: uppercase; display: flex; gap: 6px; }
+#popup-close { background: transparent; border: none; font-size: 1.2rem; cursor: pointer; color: inherit; }
+
+.popup-img-wrapper { width: 100%; height: 140px; background: #000; position: relative; }
+#popup-img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
+
+.popup-content { padding: 15px; background: rgba(255,255,255,0.03); flex-grow: 1; }
+.popup-meta { display: flex; justify-content: space-between; font-family: var(--font-code); font-size: 0.6rem; color: var(--text-dim); margin-bottom: 8px; }
+.popup-label { color: var(--accent); font-weight: bold; }
+#event-popup.history .popup-label { color: #E0BC00; }
+
+#popup-name { margin: 0 0 8px 0; font-size: 1rem; color: #fff; font-weight: 700; text-transform: uppercase; }
+#popup-desc { margin: 0; font-size: 0.75rem; color: #bbb; line-height: 1.5; }
+
+.popup-footer { background: rgba(0,0,0,0.3); padding: 8px 15px; display: flex; flex-direction: column; gap: 4px; }
+.timer-bar { width: 100%; height: 2px; background: rgba(255,255,255,0.1); }
+#popup-timer-fill { width: 100%; height: 100%; background: var(--accent); }
+
+/* Game Over & Alert */
+#alert { 
+    position: absolute; top: 15%; left: 50%; transform: translateX(-50%); 
+    background: rgba(220, 38, 38, 0.8); color: #fff; padding: 10px 30px; 
+    font-weight: 800; letter-spacing: 2px; opacity: 0; transition: opacity 0.2s; 
+    backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.2); 
+    text-transform: uppercase;
+}
+#game-over { display: none; position: absolute; inset: 0; background: rgba(0,0,0,0.95); z-index: 100; flex-direction: column; justify-content: center; align-items: center; pointer-events: auto; }
+#end-status { font-size: 3rem; margin-bottom: 10px; letter-spacing: 4px; color: #fff; font-weight: 900; }
+#retry-btn { border: 2px solid var(--accent); color: var(--accent); background: transparent; padding: 15px 40px; font-weight: 800; cursor: pointer; font-family: var(--font-ui); text-transform: uppercase; transition: 0.2s; }
+#retry-btn:hover { background: var(--accent); color: #fff; box-shadow: 0 0 20px var(--accent); }
